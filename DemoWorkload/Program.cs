@@ -16,6 +16,9 @@ namespace DemoWorkload
         public static long MAX_LATCH_WAIT = int.Parse(ConfigurationManager.AppSettings["MaxLatchWaits"], CultureInfo.InvariantCulture);
         public static string CONN_STR = ConfigurationManager.ConnectionStrings["TicketReservations"].ConnectionString;
 
+        public static string WriteCommand = "EXEC BatchInsertReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
+        public static string ReadCommand = "EXEC ReadMultipleReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

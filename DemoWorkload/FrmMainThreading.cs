@@ -41,29 +41,27 @@ namespace DemoWorkload
                     Stopped = false;
                 }
 
-                string ReadCommand;
-                string WriteCommand;
+                //string ReadCommand;
+                //string WriteCommand;
+                //WriteCommand = "EXEC BatchInsertReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
+                //ReadCommand = "EXEC ReadMultipleReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
 
-                WriteCommand = "EXEC BatchInsertReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
-                ReadCommand = "EXEC ReadMultipleReservations @ServerTransactions, @RowsPerTransaction, @ThreadID";
                 this.ErrorMessages.Clear();
 
                 ThreadParams tp = new ThreadParams(Program.REQUEST_COUNT, Program.TRANSACTION_COUNT, Program.ROW_COUNT,
-                    Program.READS_PER_WRITE, ReadCommand, WriteCommand);
-                
-                //for (int j = 0; j < Program.THREAD_COUNT; j++)
-                //{
-                //    int Threads = RunningThreads.Count();
-                //    // Create a thread with parameters.
-                //    ParameterizedThreadStart pts = new ParameterizedThreadStart(ThreadWorker);
-                //    RunningThreads.Add(new Thread(pts));
-                //    RunningThreads.ElementAt(Threads).Start(tp);
-                //}
+                    Program.READS_PER_WRITE, Program.ReadCommand, Program.WriteCommand);
 
-                Runner runner = new Runner();
-                runner.Init(tp);
-                runner.Run(tp);
-                runner.Dispose();
+                int threadCount = Program.THREAD_COUNT;
+
+                for (int j = 0; j < threadCount; j++)
+                {
+                    // Create a thread with parameters.
+                    ParameterizedThreadStart pts = new ParameterizedThreadStart(RunnerWorker);
+                    var thread = new Thread(pts);
+                    thread.Start(tp);
+
+                    RunningThreads.Add(thread);
+                }
 
                 // Thread Monitor
                 ThreadStart ts1 = new ThreadStart(ThreadMonitor);
@@ -71,6 +69,14 @@ namespace DemoWorkload
                 this.MonitorThread.Start();
             }
             catch (Exception ex) { ShowThreadExceptionDialog("OnRunClick", ex); }
+        }
+
+        void RunnerWorker(object tp)
+        {
+            Runner runner = new Runner();
+            runner.Init(tp);
+            runner.Run(tp);
+            runner.Dispose();
         }
 
         /// <summary> 
