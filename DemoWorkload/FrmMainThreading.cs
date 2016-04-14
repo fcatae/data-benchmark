@@ -79,64 +79,11 @@ namespace DemoWorkload
             runner.Dispose();
         }
 
-        /// <summary> 
-        /// Executes Transactions on the target server
-        /// </summary>
-        void ThreadWorker(object tp)
+        void LogError(string message)
         {
-            ////////////////////////////////////////////////////////////////////////////////
-            // Connect to the data source.
-            ////////////////////////////////////////////////////////////////////////////////
-
-            System.Data.SqlClient.SqlConnection conn = new SqlConnection(Program.CONN_STR);
-
-            ThreadParams MyTP = (ThreadParams)tp;
-            SqlCommand WriteCmd = new SqlCommand();
-            WriteCmd.Connection = conn;
-            WriteCmd.CommandTimeout = 600;
-            WriteCmd.CommandText = MyTP.WriteCommandText;
-            WriteCmd.Parameters.Add("@ServerTransactions", SqlDbType.Int, 4).Value = (int)MyTP.serverTransactions;
-            WriteCmd.Parameters.Add("@RowsPerTransaction", SqlDbType.Int, 4).Value = (int)MyTP.rowsPerTransaction;
-            WriteCmd.Parameters.Add("@ThreadID", SqlDbType.Int, 4).Value = (int)Thread.CurrentThread.ManagedThreadId;
-
-            SqlCommand ReadCmd = new SqlCommand();
-            ReadCmd.Connection = conn;
-            ReadCmd.CommandTimeout = 600;
-            ReadCmd.CommandText = MyTP.ReadCommandText;
-            ReadCmd.Parameters.Add("@ServerTransactions", SqlDbType.Int, 4).Value = (int)MyTP.serverTransactions;
-            ReadCmd.Parameters.Add("@RowsPerTransaction", SqlDbType.Int, 4).Value = (int)MyTP.rowsPerTransaction;
-            ReadCmd.Parameters.Add("@ThreadID", SqlDbType.Int, 4).Value = (int)Thread.CurrentThread.ManagedThreadId;
-
-            // Executing transactions on the target server
-            try
+            lock (this.ErrorLock)
             {
-                conn.Open();
-                for (int i = 0; i < MyTP.requestsPerThread; i++)
-                {
-                    lock (StopLock)
-                    {
-                        if (Stopped)
-                        {
-                            break;
-                        }
-                    }
-                    WriteCmd.ExecuteNonQuery();
-                    for (int j = 0; j < MyTP.readsPerWrite && !Stopped; j++)
-                    {
-                        ReadCmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                lock (this.ErrorLock)
-                {
-                    this.AddText(ex.Message + " " + Thread.CurrentThread.ManagedThreadId.ToString());
-                }
-            }
-            finally
-            {
-                conn.Close();
+                this.AddText(message + " " + Thread.CurrentThread.ManagedThreadId.ToString());
             }
         }
 
