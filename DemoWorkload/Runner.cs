@@ -19,7 +19,12 @@ namespace Benchmark
         SqlCommand _writeCmd;
         SqlCommand _readCmd;
 
-        public bool Stopped = false;
+        DemoWorkload.ThreadParams _param;
+
+        public Runner(DemoWorkload.ThreadParams param)
+        {
+            this._param = param;
+        }
 
         public void Init(object load)
         {
@@ -27,7 +32,7 @@ namespace Benchmark
                         
             var conn = new SqlConnection(connectionString);
 
-            var MyTP = (DemoWorkload.ThreadParams)load;
+            var MyTP = this._param;
             SqlCommand WriteCmd = new SqlCommand();
             WriteCmd.Connection = conn;
             WriteCmd.CommandTimeout = 600;
@@ -51,9 +56,9 @@ namespace Benchmark
             this._readCmd = ReadCmd;
         }
 
-        public void Run(object load)
+        public void Run(object workload)
         {
-            var MyTP = (DemoWorkload.ThreadParams)load;
+            var MyTP = this._param;
             var WriteCmd = this._writeCmd;
             var ReadCmd = this._readCmd;
 

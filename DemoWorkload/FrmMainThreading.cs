@@ -55,10 +55,15 @@ namespace DemoWorkload
 
                 for (int j = 0; j < threadCount; j++)
                 {
+                    Runner runner = new Runner(tp);
+                    runner.Init(null);
                     // Create a thread with parameters.
-                    ParameterizedThreadStart pts = new ParameterizedThreadStart(RunnerWorker);
-                    var thread = new Thread(pts);
-                    thread.Start(tp);
+
+                    Thread thread = new Thread(new ParameterizedThreadStart( (workload) => {
+                        runner.Run(workload);
+                    }));
+
+                    thread.Start(null);
 
                     RunningThreads.Add(thread);
                 }
@@ -69,14 +74,6 @@ namespace DemoWorkload
                 this.MonitorThread.Start();
             }
             catch (Exception ex) { ShowThreadExceptionDialog("OnRunClick", ex); }
-        }
-
-        void RunnerWorker(object tp)
-        {
-            Runner runner = new Runner();
-            runner.Init(tp);
-            runner.Run(tp);
-            runner.Dispose();
         }
 
         void LogError(string message)
