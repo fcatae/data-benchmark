@@ -11,6 +11,7 @@
 // organization, product, domain name, email address, logo, person, 
 // places, or events is intended or should be inferred. 
 
+using Benchmark;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -49,14 +50,22 @@ namespace DemoWorkload
 
                 ThreadParams tp = new ThreadParams(Program.REQUEST_COUNT, Program.TRANSACTION_COUNT, Program.ROW_COUNT,
                     Program.READS_PER_WRITE, ReadCommand, WriteCommand);
-                for (int j = 0; j < Program.THREAD_COUNT; j++)
-                {
-                    int Threads = RunningThreads.Count();
-                    // Create a thread with parameters.
-                    ParameterizedThreadStart pts = new ParameterizedThreadStart(ThreadWorker);
-                    RunningThreads.Add(new Thread(pts));
-                    RunningThreads.ElementAt(Threads).Start(tp);
-                }
+                
+                //for (int j = 0; j < Program.THREAD_COUNT; j++)
+                //{
+                //    int Threads = RunningThreads.Count();
+                //    // Create a thread with parameters.
+                //    ParameterizedThreadStart pts = new ParameterizedThreadStart(ThreadWorker);
+                //    RunningThreads.Add(new Thread(pts));
+                //    RunningThreads.ElementAt(Threads).Start(tp);
+                //}
+
+                Runner runner = new Runner();
+                runner.Init(tp);
+                runner.Run(tp);
+                runner.Dispose();
+
+                // Thread Monitor
                 ThreadStart ts1 = new ThreadStart(ThreadMonitor);
                 this.MonitorThread = new Thread(ts1);
                 this.MonitorThread.Start();

@@ -130,9 +130,11 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EngineMonitor.cs" />
     <Compile Include="FrmMainThreading.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Runner.cs" />
     <Compile Include="UIControls.cs" />
     <Compile Include="FrmConfig.cs">
       <SubType>Form</SubType>
